@@ -35,10 +35,8 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    def port = sh(script: "echo $((8000 + RANDOM % 1001))", returnStdout: true).trim()
                     sh "docker rm -f myfirstmaven-container || true"
-                    sh "docker run -d --name myfirstmaven-container -p ${port}:8080 myfirstmaven-app:latest"
-                    echo "Application running on port ${port}"
+                    sh "docker run -d --name myfirstmaven-container -p 9090:8080 myfirstmaven-app:latest"
                     sh "docker ps"
                 }
             }
