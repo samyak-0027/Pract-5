@@ -1,30 +1,14 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.9.6-eclipse-temurin-17'  // Maven with Java 17
-            args '--user root -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.m2:/root/.m2'
-        }
-    }
+    agent any  // Run directly on your Mac Jenkins node
 
     environment {
-        // Good practice to name/tag your images with the build number
         DOCKER_IMAGE = 'myfirstmaven-app'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/samyak-0027/Pract-5.git',
-                    branch: 'main'  // Explicitly specify branch
-            }
-        }
-
-        stage('Install Docker CLI') {
-            steps {
-                sh '''
-                    apt-get update -qq && \
-                    apt-get install -y --no-install-recommends docker.io
-                '''
+                git branch: 'main', url: 'https://github.com/samyak-0027/Pract-5.git'
             }
         }
 
@@ -38,7 +22,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Tag with build number for traceability
                     def tag = "${env.DOCKER_IMAGE}:${env.BUILD_NUMBER}"
                     sh "docker build -t ${tag} ."
                     sh "docker tag ${tag} ${env.DOCKER_IMAGE}:latest"
@@ -49,7 +32,6 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    // Use random available port to avoid conflicts
                     def port = sh(script: "shuf -i 8000-9000 -n 1", returnStdout: true).trim()
                     sh """
                         docker run -d \
@@ -65,9 +47,8 @@ pipeline {
         stage('Verify Container') {
             steps {
                 script {
-                    // Simple health check
-                    sh 'docker ps --filter "status=running" | grep ${env.DOCKER_IMAGE}'
-                    // You could add curl/wget to verify the endpoint
+                    sh 'docker ps --filter "status=running" | grep ${DOCKER_IMAGE}'
+                    // Optional: Add `curl http://localhost:<port>` to check health
                 }
             }
         }
@@ -75,18 +56,14 @@ pipeline {
 
     post {
         always {
-            script {
-                // Cleanup all containers from this build
-                sh '''
-                    docker stop ${env.DOCKER_IMAGE}-container-${env.BUILD_NUMBER} || true
-                    docker rm -f ${env.DOCKER_IMAGE}-container-${env.BUILD_NUMBER} || true
-                    docker image prune -f  // Clean up unused images
-                '''
-            }
+            sh '''
+                docker stop ${DOCKER_IMAGE}-container-${BUILD_NUMBER} || true
+                docker rm -f ${DOCKER_IMAGE}-container-${BUILD_NUMBER} || true
+                docker image prune -f
+            '''
         }
         success {
             echo '✅ Pipeline completed successfully!'
-            // Optionally push the image to a registry here
         }
         failure {
             echo '❌ Pipeline failed!'
