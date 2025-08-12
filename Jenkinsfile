@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/samyak-0027/Pract-5.git'
+                git branch: 'master', url: 'https://github.com/samyak-0027/Pract-5.git'
             }
         }
 
