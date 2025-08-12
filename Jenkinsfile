@@ -1,19 +1,22 @@
 pipeline {
-    agent any  // Run directly on your Mac Jenkins node
+    agent any
 
     environment {
+        PATH = "/opt/homebrew/bin:${env.PATH}"
         DOCKER_IMAGE = 'myfirstmaven-app'
     }
+
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/samyak-0027/Pract-5.git'
+                git branch: 'main', url: 'https://github.com/samyak-0027/Pract-5.git'
             }
         }
 
         stage('Build with Maven') {
             steps {
+                sh 'mvn -v'
                 sh 'mvn clean package'
                 archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: false
             }
@@ -43,15 +46,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Verify Container') {
-            steps {
-                script {
-                    sh 'docker ps --filter "status=running" | grep ${DOCKER_IMAGE}'
-                    // Optional: Add `curl http://localhost:<port>` to check health
-                }
-            }
-        }
     }
 
     post {
@@ -63,10 +57,10 @@ pipeline {
             '''
         }
         success {
-            echo '✅ Pipeline completed successfully!'
+             echo '✅ Pipeline completed successfully!'
         }
         failure {
-            echo '❌ Pipeline failed!'
+              echo '❌ Pipeline failed!'
         }
     }
 }
