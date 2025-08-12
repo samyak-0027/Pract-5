@@ -36,8 +36,8 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    sh "docker rm -f $`{CONTAINER_NAME}` || true"
-                    sh "docker run -d --name $`{CONTAINER_NAME}` -p 9090:8080 myfirstmaven-app:latest"
+                    sh "docker rm -f ${CONTAINER_NAME} || true"
+                    sh "docker run -d --name ${CONTAINER_NAME} -p 9090:8080 myfirstmaven-app:latest"
                     sh "docker ps"
                 }
             }
