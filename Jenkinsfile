@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        PATH = "/opt/homebrew/bin:${env.PATH}"
+        // Add BOTH Docker and Maven paths
+        PATH = "/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
         DOCKER_IMAGE = 'myfirstmaven-app'
     }
-
 
     stages {
         stage('Checkout') {
@@ -46,6 +46,12 @@ pipeline {
                 }
             }
         }
+
+        stage('Verify Container') {
+            steps {
+                sh 'docker ps --filter "status=running" | grep ${DOCKER_IMAGE}'
+            }
+        }
     }
 
     post {
@@ -57,10 +63,10 @@ pipeline {
             '''
         }
         success {
-             echo '✅ Pipeline completed successfully!'
+            echo '✅ Pipeline completed successfully!'
         }
         failure {
-              echo '❌ Pipeline failed!'
+            echo '❌ Pipeline failed!'
         }
     }
 }
