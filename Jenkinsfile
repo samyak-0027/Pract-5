@@ -54,8 +54,8 @@ pipeline {
     post {
         always {
             sh '''
-                docker stop ${DOCKER_IMAGE}-container-${BUILD_NUMBER} || true
-                docker rm -f ${DOCKER_IMAGE}-container-${BUILD_NUMBER} || true
+                docker stop ${CONTAINER_NAME} || true
+                docker rm -f ${CONTAINER_NAME} || true
                 docker image prune -f
             '''
         }
