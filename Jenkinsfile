@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         // Add BOTH Docker and Maven paths
+        CONTAINER_NAME = "myfirstmaven-container"
         PATH = "/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
         DOCKER_IMAGE = 'myfirstmaven-app'
     }
@@ -36,7 +37,7 @@ pipeline {
             steps {
                 script {
                     sh "docker rm -f myfirstmaven-container || true"
-                    sh "docker run -d --name myfirstmaven-container -p 9090:8080 myfirstmaven-app:latest"
+                    sh "docker run -d --name $`{CONTAINER_NAME}` -p 9090:8080 myfirstmaven-app:latest"
                     sh "docker ps"
                 }
             }
